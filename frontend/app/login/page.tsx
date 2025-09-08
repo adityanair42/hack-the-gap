@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { BACKEND_URL } from "./config";
+import { BACKEND_URL } from "../register/config";
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,26 +16,27 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const res = await fetch(`${BACKEND_URL}/register`, {
+      const res = await fetch(`${BACKEND_URL}/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
+        credentials: "include", // <-- ADD THIS LINE
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        // Registration successful, redirect to login page
-        router.push("/login");
+        // Login successful, the browser will automatically handle the session cookie.
+        // Redirect to the home page.
+        router.push("/");
       } else {
-        // Handle errors from the backend
         const errorData = await res.json();
-        setError(errorData.message || "Registration failed. Please try again.");
+        setError(errorData.message || "Login failed. Please check your credentials.");
       }
-    } catch (error) {
-      // Handle network errors
-      console.error("An error occurred during registration:", error);
-      setError("An unexpected error occurred. Please check your connection and try again.");
+    } catch (err: any) {
+      // Log the specific error to the console for more details
+      console.error("Fetch error:", err);
+      setError(
+        `Failed to connect to the server. Please check your network or try again later. (${err.message})`
+      );
     }
   };
 
@@ -89,36 +89,19 @@ export default function RegisterPage() {
           <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
             <div className="text-center mb-8">
               <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-                Create an Account
+                Log in to your Account
               </h1>
               <p className="text-slate-500 mt-2">
-                Already have an account?{" "}
+                Don't have an account?{" "}
                 <Link
-                  href="/login"
+                  href="/register"
                   className="font-medium text-slate-700 hover:text-slate-900"
                 >
-                  Log in
+                  Sign up
                 </Link>
               </p>
             </div>
             <form className="space-y-6" onSubmit={handleSubmit}>
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-slate-700 mb-1"
-                >
-                  Full Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="block w-full px-3 py-2 rounded-lg border border-slate-300 shadow-sm focus:border-slate-500 focus:ring-slate-500 sm:text-sm"
-                />
-              </div>
               <div>
                 <label
                   htmlFor="email"
@@ -148,7 +131,7 @@ export default function RegisterPage() {
                   id="password"
                   name="password"
                   type="password"
-                  autoComplete="new-password"
+                  autoComplete="current-password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -164,7 +147,7 @@ export default function RegisterPage() {
                 type="submit"
                 className="w-full inline-flex items-center justify-center gap-2 px-8 py-3 font-semibold rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-slate-900"
               >
-                Sign Up
+                Log In
               </button>
             </form>
           </div>
