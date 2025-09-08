@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const res = await fetch(`${BACKEND_URL}/login`, {
+            const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         credentials: "include", // <-- ADD THIS LINE
         headers: { "Content-Type": "application/json" },
