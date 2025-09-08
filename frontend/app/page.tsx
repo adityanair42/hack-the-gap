@@ -2,8 +2,41 @@
 
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
+  const router = useRouter();
+
+  // On component mount, check localStorage to see if the user is logged in.
+  useEffect(() => {
+    // This code runs only in the browser.
+    const name = localStorage.getItem("name");
+    const sessionId = localStorage.getItem("session_id");
+
+    if (name && sessionId) {
+      setIsLoggedIn(true);
+      setUserName(name);
+    }
+  }, []);
+
+  // Handles the sign-out process.
+  const handleSignOut = () => {
+    // Clear the user's session data from localStorage.
+    localStorage.removeItem("session_id");
+    localStorage.removeItem("name");
+    localStorage.removeItem("email");
+
+    // Update the state to reflect that the user is logged out.
+    setIsLoggedIn(false);
+    setUserName("");
+
+    // Force a reload to ensure all components recognize the logged-out state.
+    router.refresh();
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Header */}
@@ -13,21 +46,39 @@ export default function Home() {
             APKA Saathi
           </Link>
           <nav className="hidden md:flex items-center gap-8 text-slate-600">
-            <Link href="#" className="hover:text-slate-900 hover:text-lg transition delay-100 duration-100 ease-in-out transition-all">Features</Link>
-            <Link href="#" className="hover:text-slate-900 hover:text-lg transition delay-100 duration-100 ease-in-out transition-all">Pricing</Link>
-            <Link href="#" className="hover:text-slate-900 hover:text-lg transition delay-100 duration-100 ease-in-out transition-all">About Us</Link>
+            <Link href="#" className="hover:text-slate-900 hover:text-lg transition-all duration-200 ease-in-out">Features</Link>
+            <Link href="#" className="hover:text-slate-900 hover:text-lg transition-all duration-200 ease-in-out">Pricing</Link>
+            <Link href="#" className="hover:text-slate-900 hover:text-lg transition-all duration-200 ease-in-out">About Us</Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login" passHref>
-              <button className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-200 transition-colors">
-                Login
-              </button>
-            </Link>
-            <Link href="/register" passHref>
-              <button className="px-5 py-2 text-sm font-medium rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm">
-                Sign Up
-              </button>
-            </Link>
+            {isLoggedIn ? (
+              // If the user is logged in, show their name and a Sign Out button.
+              <>
+                <span className="font-medium text-slate-700">
+                  {userName}
+                </span>
+                <button
+                  onClick={handleSignOut}
+                  className="px-5 py-2 text-sm font-medium rounded-lg bg-slate-200 text-slate-800 hover:bg-slate-300 transition-colors shadow-sm"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              // If the user is not logged in, show the Login and Sign Up buttons.
+              <>
+                <Link href="/login" passHref>
+                  <button className="px-5 py-2 text-sm font-medium rounded-lg text-slate-700 hover:bg-slate-200 transition-colors">
+                    Login
+                  </button>
+                </Link>
+                <Link href="/register" passHref>
+                  <button className="px-5 py-2 text-sm font-medium rounded-lg bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-sm">
+                    Sign Up
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
