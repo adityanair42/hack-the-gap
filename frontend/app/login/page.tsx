@@ -24,9 +24,13 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        // Login successful, the browser will automatically handle the session cookie.
-        // Redirect to the home page.
+        // Login successful, save session info to localStorage and redirect.
+        const data = await res.json();
+        localStorage.setItem("session_id", data.session_id);
+        localStorage.setItem("name", data.name);
+        localStorage.setItem("email", data.email);
         router.push("/");
+        router.refresh(); // Ensures the header updates correctly
       } else {
         const errorData = await res.json();
         setError(errorData.message || "Login failed. Please check your credentials.");
